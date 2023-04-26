@@ -1,10 +1,7 @@
 import json
 # import re
-import smtplib
-import ssl
 import datetime
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -12,7 +9,6 @@ import firebase_admin
 from firebase_admin import firestore
 from firebase_admin import credentials
 from firebase_admin import storage
-# import functions_framework
 
 
 app = Flask(__name__)
@@ -104,54 +100,10 @@ def create_post():
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         record['timestamp'] = timestamp
         database.collection('posts').add(record)
-        send_email(user_email)
+        # send_email(user_email)
     else:
         return jsonify({'error': 'User does not exist, post not created'}), 404
     return jsonify({'message': 'Post created successfully'})
-
-
-def get_mailing_list(user_email):
-    """
-    Function to return the emails of all users
-    """
-    users = database.collection('users').get()
-
-    mailing_list = []
-    for user in users:
-        user_ref = user.to_dict()
-        if user_ref['email'] == user_email:
-            continue
-        else:
-            mailing_list.append(user_ref['email'])
-
-    return mailing_list
-
-
-def send_email(user_email):
-    # seting up the smtp server, secure content and credentials
-    smtp = "smtp.office365.com"
-    port = 587
-    contxt = ssl.create_default_context()
-    sender_email = "linkup_ashesi@outlook.com"
-    sender_password = "Link@pp!"
-
-    # get mailing list of users
-    recipients = get_mailing_list(user_email)
-
-    # compose the email
-    message = MIMEMultipart()
-    message['From'] = sender_email
-    message['Bcc'] = ", ".join(recipients)
-    message['Subject'] = "New post alert"
-    body = f"Dear Linker, \nLinker {user_email} has made a new post in LinkUp. Login to view\n\nSincerly,\nLinkUp"
-    message.attach(MIMEText(body, 'plain'))
-
-    # send the email
-    with smtplib.SMTP(smtp, port) as server:
-        server.starttls(context=contxt)
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, recipients, message.as_string())
-
 
 
 
