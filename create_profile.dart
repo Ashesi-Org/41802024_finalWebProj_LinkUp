@@ -6,6 +6,7 @@ import 'login.dart';
 import 'linkup_feed.dart';
 import 'custom_textField.dart';
 
+/* Sign up page*/
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
 
@@ -14,6 +15,7 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  // defining text controllers
   final _userIdCtrl = TextEditingController();
   final _userNameCtrl = TextEditingController();
   final _userEmailCtrl = TextEditingController();
@@ -24,11 +26,13 @@ class _SignUpState extends State<SignUp> {
   final _userFoodCtrl = TextEditingController();
   final _userMovieCtrl = TextEditingController();
 
+  // defining key variables
   String _errorMsg = '';
   String? _selectedVal;
   final _formKey = GlobalKey<FormState>();
 
   void _navigateToLogin() {
+    // redirect user to login page
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Login()),
@@ -36,6 +40,7 @@ class _SignUpState extends State<SignUp> {
   }
 
   void _showErrorDialog(errorMsg) {
+    // display errors as an alert dialogue
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -55,7 +60,9 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
+
   void _signUpUser() async{
+    // signing up the user -sending the request to api
     final response = await http.post(
         Uri.parse('https://webtechfinals-383417.uc.r.appspot.com/users'),
         headers: <String, String>{
@@ -75,11 +82,13 @@ class _SignUpState extends State<SignUp> {
     );
 
     if (response.statusCode == 200){
+      // if user exists, navigate to feed page
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Content(userId: _userIdCtrl.text,)),
       );
     } else{
+      // display error message in the alert box
       Map<String, dynamic> errorJson = json.decode(response.body);
       _errorMsg = errorJson['error'];
       _showErrorDialog(_errorMsg);
@@ -89,6 +98,7 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
+    //displaying layout of signup page
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -189,6 +199,11 @@ class _SignUpState extends State<SignUp> {
                                 ),
                                 const SizedBox(height: 4.0),
                                 DropdownButtonFormField<String>(
+                                  validator: (value){
+                                    if (value == null || value.isEmpty){
+                                      return "Please fill this thing";
+                                    }
+                                  },
                                   value: _selectedVal,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),

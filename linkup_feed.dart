@@ -5,8 +5,9 @@ import 'constants.dart';
 import 'current_user_profile.dart';
 import 'feed_stream.dart';
 import 'login.dart';
+import 'custom_textField.dart';
 
-
+/* Main aim, feed page with user profile displayed */
 class Content extends StatefulWidget {
   final String userId;
   const Content({Key? key, required this.userId}) : super(key: key);
@@ -16,19 +17,23 @@ class Content extends StatefulWidget {
 }
 
 class _ContentState extends State<Content> {
+  // declaring needed variables
   String _userId = '';
   String _errorMsg = '';
 
+  // declaring controllers and form key
+  final _formKey = GlobalKey<FormState>();
   final _userEmailCtrl = TextEditingController();
   final _userPostCtrl = TextEditingController();
 
   @override
   void initState(){
     super.initState();
-    _userId = widget.userId;
+    _userId = widget.userId; //setting the user id as the logged in user
   }
 
   void _makePost() async{
+    // submitting the post (api sends the email)
     final response = await http.post(
       Uri.parse('https://webtechfinals-383417.uc.r.appspot.com/posts'),
       headers: <String, String>{
@@ -41,8 +46,10 @@ class _ContentState extends State<Content> {
     );
 
     if (response.statusCode == 200){
+      // close dialogue after successful submission
       Navigator.pop(context);
     } else {
+      //display error message
       String errorMsg = json.decode(response.body)['error'];
       setState(() {
         _errorMsg = errorMsg;
@@ -66,6 +73,7 @@ class _ContentState extends State<Content> {
             ),
             child: SingleChildScrollView(
               child: Form(
+                key: _formKey,
                 child: Center(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,30 +82,20 @@ class _ContentState extends State<Content> {
                       const SizedBox(height: 8.0),
                       SizedBox(
                         width: 250,
-                        child: TextFormField(
-                          controller: _userEmailCtrl,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Email',
-                            filled: true,
-                            fillColor: Colors.white70,
-                          ),
+                        child: CustomTextField(
+                          text: 'Email',
+                          ctrl: _userEmailCtrl,
                         ),
                       ),
                       const SizedBox(height: 8.0),
                       SizedBox(
                         width: 250,
-                        child: TextFormField(
-                          controller: _userPostCtrl,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Post',
-                            filled: true,
-                            fillColor: Colors.white70,
-                          ),
+                        child: CustomTextField(
+                          text: 'Post',
+                          ctrl: _userPostCtrl,
                         ),
                       ),
-                      if (_errorMsg != null)
+                      if (_errorMsg != null) // displaying the error message
                         Text(
                           _errorMsg,
                           style: TextStyle(color: Colors.red),
@@ -111,7 +109,10 @@ class _ContentState extends State<Content> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                _makePost();
+                if (_formKey.currentState!.validate()){
+                  // if the form constraints are satisfied
+                  _makePost();
+                };
               },
               child: Text('Submit'),
             ),
@@ -128,6 +129,7 @@ class _ContentState extends State<Content> {
   }
 
   void _logOut(){
+    // allowing the user to logout
     Navigator.push(
         context,
       MaterialPageRoute(builder: (context) => Login()
@@ -137,6 +139,7 @@ class _ContentState extends State<Content> {
 
   @override
   Widget build(BuildContext context) {
+    // structuring the feed page
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -179,7 +182,7 @@ class _ContentState extends State<Content> {
                       child: SizedBox(
                         height: 600.0,
                         width: double.infinity,
-                        child: UserProfile(context: context, userId: _userId),
+                        child: UserProfile(context: context, userId: _userId), // displaying user profile
                       ),
                       elevation: 5.0,
                       shape: RoundedRectangleBorder(
@@ -211,7 +214,7 @@ class _ContentState extends State<Content> {
                   child: SizedBox(
                     height: double.infinity,
                     width: 600.0,
-                    child: FeedStream(),
+                    child: FeedStream(), // displaying the live feed
                   ),
                 ),
               ),

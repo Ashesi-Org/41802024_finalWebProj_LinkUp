@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'feed_user_profile.dart';
 
-
+/* Live stream of the feed page */
 class FeedStream extends StatelessWidget {
+
   void _viewProfile(context, userEmail){
+    // displaying profiles of users that have made a post
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -16,14 +18,14 @@ class FeedStream extends StatelessWidget {
             ],
           ),
           content: Container(
-            height: 200.0,
+            height: 250.0,
+            width: 380.0,
             decoration: BoxDecoration(
               color: Colors.white70,
               borderRadius: BorderRadius.circular(30.0),
             ),
             child: SingleChildScrollView(
-                child: UserProfile(context: context, userEmail: userEmail
-                ),
+                child: UserProfile(context: context, userEmail: userEmail),
             ),
           ),
         ),
@@ -32,6 +34,7 @@ class FeedStream extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // creating structure of the feed stream
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('posts')
           .snapshots(),
@@ -44,15 +47,17 @@ class FeedStream extends StatelessWidget {
           return Text('Loading...');
         }
 
+        // collecting the posts
         final posts = snapshot.data!.docs
             .map((document) => Post.fromFirestore(document))
             .where((post) => post != null)
             .toList();
 
-        posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+        posts.sort((a, b) => b.timestamp.compareTo(a.timestamp)); //sorting the posts in descending order
 
         return ListView(
           children: posts.map((post) {
+            // generating display for each post result in the database
             return Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -63,7 +68,7 @@ class FeedStream extends StatelessWidget {
                 height: 100.0,
                 width: 300.0,
                 child: ListTile(
-                  title: GestureDetector(
+                  title: GestureDetector( //allowing the user email to be clickable
                     child: Text(
                       post.user_email,
                       style: TextStyle(
@@ -71,6 +76,7 @@ class FeedStream extends StatelessWidget {
                           color: Colors.blue,
                       ),
                     ),
+                      // this allows other users to view this user's profile
                     onTap: () => _viewProfile(context, post.user_email)
                   ),
                   subtitle: Text(post.user_post),
@@ -96,6 +102,7 @@ class Post {
     required this.user_post,
   });
 
+  // returning the posts from the database and converting the timestamps to firestore timestamps
   factory Post.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>?;
     if (data == null) {

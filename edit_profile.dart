@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'constants.dart';
 import 'linkup_feed.dart';
 
-
+/* Allowing the user to make edits */
 class EditProfile extends StatefulWidget {
   final String userId;
   const EditProfile({Key? key, required this.userId}) : super(key: key);
@@ -15,6 +15,7 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  // setting relevant variables
   String _userId = '';
   String _errorMsg = '';
   String? _selectedVal;
@@ -27,6 +28,7 @@ class _EditProfileState extends State<EditProfile> {
   String _food = '';
   String _movie = '';
 
+  // declaring controllers
   late TextEditingController _userDoBCtrl;
   late TextEditingController _userYearCtrl;
   late TextEditingController _userMajorCtrl;
@@ -35,8 +37,9 @@ class _EditProfileState extends State<EditProfile> {
   late TextEditingController _userMovieCtrl;
 
   void getUserDeets(String userId) async {
+    // returning the users details to be displayed in the form
     final user = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-    setState(() {
+    setState(() { // set the relevant strings to be placed in the controllers
       _dob = user['DOB'];
       _yearGroup = user['year_grp'];
       _major = user['major'];
@@ -49,11 +52,12 @@ class _EditProfileState extends State<EditProfile> {
   @override
   void initState() {
     super.initState();
-    _userId = widget.userId;
-    getUserDeets(_userId);
+    _userId = widget.userId; //setting the user to the logged in user
+    getUserDeets(_userId); // getting the details
   }
 
   void _showErrorDialog(errorMsg) {
+    // display any error in the alert box
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -74,12 +78,13 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   void _updateUserDeets() async{
+    // allowing the users details to be updated through the api
     final response = await http.patch(
         Uri.parse('https://webtechfinals-383417.uc.r.appspot.com/users'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-      body: jsonEncode(<String, String>{
+      body: jsonEncode(<String, String>{ // setting the fields to the items in the controllers
         "stu_id": _userId,
         "DOB": _userDoBCtrl.text,
         "year_grp": _userYearCtrl.text,
@@ -91,6 +96,7 @@ class _EditProfileState extends State<EditProfile> {
     );
 
     if (response.statusCode == 200){
+      // navigate back to feed page if successful
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Content(userId: _userId,)
@@ -105,6 +111,7 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
+    //setting controllers to hold data retrieved from the database
     _userDoBCtrl = TextEditingController(text: _dob);
     _userYearCtrl = TextEditingController(text: _yearGroup);
     _userMajorCtrl = TextEditingController(text: _major);
@@ -112,6 +119,7 @@ class _EditProfileState extends State<EditProfile> {
     _userFoodCtrl = TextEditingController(text: _food);
     _userMovieCtrl = TextEditingController(text: _movie);
 
+    // setting the structure for the page
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(

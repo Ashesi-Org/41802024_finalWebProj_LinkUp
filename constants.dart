@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+/* creating constants for app color and theme */
 class AppColors {
   static const primaryGradient = LinearGradient(
     begin: Alignment.topCenter,

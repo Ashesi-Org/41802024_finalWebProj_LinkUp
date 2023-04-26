@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/* Class for the profile of users in the feed */
 class UserProfile extends StatelessWidget {
   final BuildContext context;
   final String userEmail;
@@ -18,8 +19,9 @@ class UserProfile extends StatelessWidget {
         .get();
     final List<String> ids = snapshot.docs.map((doc) => doc.id).toList();
     if (ids.isNotEmpty){
-      userId = ids.first;
+      userId = ids.first; //finding the id of the user from their email
     }
+    // returning the details of the user to be displayed in the profile card
     final url = Uri.parse('https://webtechfinals-383417.uc.r.appspot.com/users/$userId');
     final response = await http.get(url);
     if (response.statusCode == 200){

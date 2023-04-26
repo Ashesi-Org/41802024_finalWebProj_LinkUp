@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'edit_profile.dart';
 
+/* Displaying the details of the logged in user */
 class UserProfile extends StatefulWidget {
   final BuildContext context;
   final String userId;
@@ -20,11 +21,12 @@ class _UserProfileState extends State<UserProfile>{
   @override
   void initState(){
     super.initState();
-    _userId = widget.userId;
+    _userId = widget.userId; // setting the id to the logged in user
   }
 
 
   void _navigateToEditProfile() {
+    // navigate to allow profile edits
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => EditProfile(userId: _userId)),
@@ -33,6 +35,7 @@ class _UserProfileState extends State<UserProfile>{
 
 
   Future<Map<String, dynamic>> _getUserDeets(String userId) async {
+    // retrieving user information to be displayed in the profile card
     final url = Uri.parse('https://webtechfinals-383417.uc.r.appspot.com/users/$userId');
     final response = await http.get(url);
     if (response.statusCode == 200){
@@ -45,6 +48,7 @@ class _UserProfileState extends State<UserProfile>{
 
   @override
   Widget build(BuildContext context) {
+    // structure of the profile page allowing for live updates in case of any changes
     return FutureBuilder(
       future: _getUserDeets(_userId), // Call the API to get user details
       builder: (context, snapshot) {
@@ -56,9 +60,7 @@ class _UserProfileState extends State<UserProfile>{
             children: [
               CircleAvatar(
                 radius: 50,
-                backgroundImage: userDetails['profile_pic_url'] != null
-                    ? NetworkImage(userDetails['profile_pic_url'] as String)
-                    : AssetImage('assets/user_profile.png') as ImageProvider<Object>,
+                backgroundImage:  AssetImage('assets/user_profile.png'),
               ),
               SizedBox(height: 16),
               Text(
@@ -162,20 +164,9 @@ class _UserProfileState extends State<UserProfile>{
                 ),
               ),
               SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // ElevatedButton(
-                  //     onPressed: () {},//=> _profilePictureUrl(_userId),
-                  //     child: Tooltip(
-                  //       message: 'Upload profile picture',
-                  //       child: Icon(Icons.image),
-                  //     ),
-                  // ),
-                  ElevatedButton(
-                  onPressed: _navigateToEditProfile,
-                  child: Text('Edit Profile'),
-                ),]
+              ElevatedButton(
+                onPressed: _navigateToEditProfile,
+                child: Text('Edit Profile'),
               ),
             ],
           );
